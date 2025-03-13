@@ -172,22 +172,22 @@ def letterbox(image, target_size=(640, 640), color=(114, 114, 114)):
     return padded #  返回填充后的图像
 
 
-def cv2_puttext_chinese(img, text, position, font_size, color=(255, 255, 255), font_path="/Users/Larry/Downloads/pingfangziti_downcc/pingfangziti/苹方黑体-中粗-简.ttf",  bg_color=(50, 50, 50), bg_alpha=0.6):
+def cv2_puttext_chinese(img, text, position, font_size, color=(255, 255, 255), color_alpha=1, font_path="/Users/Larry/Downloads/pingfangziti_downcc/pingfangziti/苹方黑体-中粗-简.ttf",  bg_color=(50, 50, 50), bg_alpha=0.6):
     """
-    在OpenCV图像上绘制中文文本，并可选添加背景框。
+    Draw Chinese text on an OpenCV image with an optional background box.
 
-    参数:
-    img (numpy.ndarray): 输入的OpenCV图像。
-    text (str): 要绘制的文本。
-    position (tuple): 文本的位置，格式为(x, y)。
-    font_size (int): 字体大小。
-    color (tuple, optional): 文本颜色，默认为白色(255, 255, 255)。
-    font_path (str, optional): 字体文件的路径，默认为苹方黑体-中粗-简.ttf。
-    bg_color (tuple, optional): 背景颜色，默认为灰色(50, 50, 50)。如果为None，则不绘制背景框。
-    bg_alpha (float, optional): 背景透明度，默认为0.6。
-
-    返回:
-    numpy.ndarray: 绘制文本后的OpenCV图像。
+    Parameters:
+        img (numpy.ndarray): Input OpenCV image.
+        text (str): Text to be drawn.
+        position (tuple): Position of the text in the format (x, y).
+        font_size (int): Font size.
+        color (tuple, optional): Text color, default is white (255, 255, 255).
+        color_alpha (float, optional): Text transparency, default is 1 (opaque).
+        font_path (str, optional): Path to the font file, default is 苹方黑体-中粗-简.ttf.
+        bg_color (tuple, optional): Background color, default is gray (50, 50, 50). If None, no background box is drawn.
+        bg_alpha (float, optional): Background transparency, default is 0.6.
+    Returns:
+        numpy.ndarray: OpenCV image with the drawn text.
     """
     # 转换颜色通道顺序
     color_rgb = color[::-1]  # BGR -> RGB
@@ -220,7 +220,7 @@ def cv2_puttext_chinese(img, text, position, font_size, color=(255, 255, 255), f
         draw.rectangle(bg_box, fill=(bg_color_rgb + (int(255 * bg_alpha),)))
     
     # 绘制文字
-    draw.text(position, text, font=font, fill=color_rgb)
+    draw.text(position, text, font=font, fill=(color_rgb + (int(255 * color_alpha),)))
     
     # 转换回OpenCV格式
     img = cv2.cvtColor(np.array(img_pil), cv2.COLOR_RGB2BGR)
