@@ -12,20 +12,29 @@ import numpy as np
 from utils import PlaceholderEntry, Translator, cv2_puttext_chinese, letterbox
 from negative_text_gen import NegativeTextGenerator
 
-device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+
+import platform
+system = platform.system()
+if system == "Windows" or system == "Linux":
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+elif system == "Darwin":
+    device = torch.device("mps") if torch.backends.mps.is_available() else torch.device("cpu")
+else:
+    raise ValueError("Unsupported operating system.")
+
+print(f"当前操作系统: {system}")
+print(f"当前设备: {device}")
+
 
 # 全局配置
 MAX_FPS = 25       # 限制最大帧率
 FRAME_SCALE = 0.5  # 画面缩放比例
 DETECT_INTERVAL = 8  # 每3帧进行一次检测
-PROBABILITY = 0.7
+PROBABILITY = 0.9
 MAX_OBJECTS_TO_PROCESS = 40  # 限制每帧处理的最大目标数
 BOX_DISPLAY_DURATION = 1.0  # 新增：检测框显示的最大时间（秒）
-VIDEO_PATH = 0
-# VIDEO_PATH = "/Users/Larry/Downloads/47516-451623701_medium.mp4"
-# VIDEO_PATH = "/Users/Larry/Desktop/目标检测效果展示/视频演示/美国狩猎相机/source/test_video/Vehicle_01.mp4"
-# VIDEO_PATH = "/Users/Larry/Downloads/2053100-hd_1920_1080_30fps.mp4"
 
+VIDEO_PATH = 0
 # 共享资源
 input_queue = Queue()
 frame_queue = Queue(maxsize=3)    # 原始帧队列
@@ -43,11 +52,19 @@ objects_lock = Lock()
 clip_queue_lock = Lock()  # 新增：保护CLIP队列的锁
 
 # 模型加载
+start_time = time.time()
+print("加载yolov8模型...")
 yolo = YOLO("yolov8n.pt").to(device)
-clip_model = CLIPModel.from_pretrained("/Users/Larry/.cache/huggingface/hub/models--openai--clip-vit-base-patch32/snapshots/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268").to(device)
-clip_processor = CLIPProcessor.from_pretrained("/Users/Larry/.cache/huggingface/hub/models--openai--clip-vit-base-patch32/snapshots/3d74acf9a28c67741b2f4f2ea7635f0aaf6f0268")
+print("加载CLIP模型...")
+clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
+clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+print("加载翻译模型...")
 translate_model = Translator()
+print("加载负文本生成器模型...")
 generator = NegativeTextGenerator()
+model_loading_time = time.time()
+print(f"模型加载完成，耗时: {(model_loading_time - start_time):.2f}秒")
+
 
 # 性能统计
 stats_lock = Lock()
