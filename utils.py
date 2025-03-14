@@ -100,8 +100,8 @@ class Translator:
         - 加载英语到中文和中文到英语的预训练模型及其对应的tokenizer。
         """
         # 模型名称，如果模型已经下载到本地，可以直接指定路径
-        en2zh_model_name = "/Users/Larry/Projects/CLIP/translate/opus-mt-en-zh"
-        zh2en_model_name = "/Users/Larry/Projects/CLIP/translate/opus-mt-zh-en"
+        en2zh_model_name = "./translate/opus-mt-en-zh"
+        zh2en_model_name = "./translate/opus-mt-zh-en"
         # 加载tokenizer ，用于将用户输入的文本转化为数字形式，将模型输出的数字形式转化为中文形式
         self.en2zh_tokenizer = MarianTokenizer.from_pretrained(en2zh_model_name)
         self.zh2en_tokenizer = MarianTokenizer.from_pretrained(zh2en_model_name)
